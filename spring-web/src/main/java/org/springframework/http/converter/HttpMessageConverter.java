@@ -26,14 +26,14 @@ import org.springframework.lang.Nullable;
 
 /**
  * Strategy interface that specifies a converter that can convert from and to HTTP requests and responses.
- *
+ * 策略接口，指定可以从HTTP请求和响应转换为HTTP请求和响应的转换器
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @since 3.0
  */
 public interface HttpMessageConverter<T> {
 
-	/**
+	/**指定转换器可以读取的对象类型，即转换器可将请求信息转换为clazz类型的对象;同时支持指定的MIME类型(text/html、application/json等)
 	 * Indicates whether the given class can be read by this converter.
 	 * @param clazz the class to test for readability
 	 * @param mediaType the media type to read (can be {@code null} if not specified);
@@ -42,7 +42,7 @@ public interface HttpMessageConverter<T> {
 	 */
 	boolean canRead(Class<?> clazz, @Nullable MediaType mediaType);
 
-	/**
+	/**指定转换器可以将clazz类型的对象写到响应流当中，响应流支持的媒体类型在mediaType中定义
 	 * Indicates whether the given class can be written by this converter.
 	 * @param clazz the class to test for writability
 	 * @param mediaType the media type to write (can be {@code null} if not specified);
@@ -51,13 +51,13 @@ public interface HttpMessageConverter<T> {
 	 */
 	boolean canWrite(Class<?> clazz, @Nullable MediaType mediaType);
 
-	/**
+	/**返回当前转换器支持的媒体类型
 	 * Return the list of {@link MediaType} objects supported by this converter.
 	 * @return the list of supported media types
 	 */
 	List<MediaType> getSupportedMediaTypes();
 
-	/**
+	/**将请求信息转换为T类型的对象 流对象为：HttpInputMessage
 	 * Read an object of the given type from the given input message, and returns it.
 	 * @param clazz the type of object to return. This type must have previously been passed to the
 	 * {@link #canRead canRead} method of this interface, which must have returned {@code true}.
@@ -69,7 +69,7 @@ public interface HttpMessageConverter<T> {
 	T read(Class<? extends T> clazz, HttpInputMessage inputMessage)
 			throws IOException, HttpMessageNotReadableException;
 
-	/**
+	/**将T类型的对象写到响应流当中，同时指定响应的媒体类型为contentType 输出流为：HttpOutputMessage
 	 * Write an given object to the given output message.
 	 * @param t the object to write to the output message. The type of this object must have previously been
 	 * passed to the {@link #canWrite canWrite} method of this interface, which must have returned {@code true}.
