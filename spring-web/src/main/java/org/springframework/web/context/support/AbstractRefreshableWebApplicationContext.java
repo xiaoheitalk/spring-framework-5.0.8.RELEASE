@@ -156,6 +156,7 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
 	 * Create and return a new {@link StandardServletEnvironment}. Subclasses may override
 	 * in order to configure the environment or specialize the environment type returned.
 	 */
+	// 这个方法需要注意一下，默认是StandardEnvironment，但是它是protected方法设计，所以之类可以重写（如下图）
 	@Override
 	protected ConfigurableEnvironment createEnvironment() {
 		return new StandardServletEnvironment();
@@ -208,6 +209,7 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
 	@Override
 	protected void initPropertySources() {
 		ConfigurableEnvironment env = getEnvironment();
+		// 初始化web环境中的初始值（比如init等，这个后续会说）
 		if (env instanceof ConfigurableWebEnvironment) {
 			((ConfigurableWebEnvironment) env).initPropertySources(this.servletContext, this.servletConfig);
 		}

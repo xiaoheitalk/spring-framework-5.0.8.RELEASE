@@ -66,6 +66,7 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 
 
 	/**
+	 * 将当前的ApplicationContext对象交给ApplicationContextAwareProcessor类来处理，从而在Aware接口实现类中的注入applicationContext等等
 	 * Create a new ApplicationContextAwareProcessor for the given context.
 	 */
 	public ApplicationContextAwareProcessor(ConfigurableApplicationContext applicationContext) {

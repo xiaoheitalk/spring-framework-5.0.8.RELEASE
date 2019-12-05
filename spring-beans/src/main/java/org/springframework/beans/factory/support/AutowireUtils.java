@@ -139,9 +139,15 @@ abstract class AutowireUtils {
 	 * @return the resolved value
 	 */
 	public static Object resolveAutowiringValue(Object autowiringValue, Class<?> requiredType) {
+		// 如果注入到的值为ObjectFactory类型（并且不是requiredType实例），就比如下面的代理吧~
 		if (autowiringValue instanceof ObjectFactory && !requiredType.isInstance(autowiringValue)) {
 			ObjectFactory<?> factory = (ObjectFactory<?>) autowiringValue;
+			// autowiringValue 显示是实现了Serializable 接口的
+			// 并且requiredType是个接口（HttpServletRequest是接口，继承自ServletRequest）
+			// 所以此处注意了，只能根据接口进行注入才是线程安全的，
+			// 如果注入实现类，线程就是不安全的（因为无法创建代理了） 但是显然我们不可能注入实现类的
 			if (autowiringValue instanceof Serializable && requiredType.isInterface()) {
+				// 创建出来的代理对象，才是最终要被注入进去的值
 				autowiringValue = Proxy.newProxyInstance(requiredType.getClassLoader(),
 						new Class<?>[] {requiredType}, new ObjectFactoryDelegatingInvocationHandler(factory));
 			}
@@ -302,6 +308,9 @@ abstract class AutowireUtils {
 				return this.objectFactory.toString();
 			}
 			try {
+				// 核心在这里，每次调用的方法，实际上调用的是objectFactory.getObject()这个对象的对应方法，那么这个对象源码呢？
+				// beanFactory.registerResolvableDependency(ServletRequest.class, new RequestObjectFactory());
+				// 可以看出他是一个RequestObjectFactory类型，所以看下面getObject方法
 				return method.invoke(this.objectFactory.getObject(), args);
 			}
 			catch (InvocationTargetException ex) {
