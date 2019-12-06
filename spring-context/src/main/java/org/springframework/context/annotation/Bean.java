@@ -190,9 +190,9 @@ import org.springframework.core.annotation.AliasFor;
  *     }
  * </pre>
  *
- * By marking this method as {@code static}, it can be invoked without causing instantiation of its
- * declaring {@code @Configuration} class, thus avoiding the above-mentioned lifecycle conflicts.
- * Note however that {@code static} {@code @Bean} methods will not be enhanced for scoping and AOP
+ * By marking this method as {@code
+ * Note howevstatic}, it can be invoked without causing instantiation of its
+ *  * declaring {@code @Configuration} class, thus avoiding the above-mentioned lifecycle conflicts.er that {@code static} {@code @Bean} methods will not be enhanced for scoping and AOP
  * semantics as mentioned above. This works out in {@code BFPP} cases, as they are not typically
  * referenced by other {@code @Bean} methods. As a reminder, a WARN-level log message will be
  * issued for any non-static {@code @Bean} methods having a return type assignable to

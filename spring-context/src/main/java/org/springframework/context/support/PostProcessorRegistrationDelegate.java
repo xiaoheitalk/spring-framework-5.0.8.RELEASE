@@ -48,17 +48,43 @@ import org.springframework.lang.Nullable;
  */
 final class PostProcessorRegistrationDelegate {
 
+	/**
+	 * 1. 先执行BeanDefinitionRegistryPostProcessor的实现类的postProcess*方法，按照手动set，PriorityOrdered，Order，不指定顺序执行
+	 * 2. 后执行BeanFactoryPostProcessor的实现类的postProcess*方法，按照手动set（在1处执行了），PriorityOrdered，Order，不指定顺序执行
+	 * 那为什么逻辑要先执行postProcessBeanDefinitionRegistry然后在执行postProcessBeanFactory呢？
+	 * 因为postProcessBeanDefinitionRegistry是用来创建bean定义的，而postProcessBeanFactory是修改BeanFactory,当然postProcessBeanFactory也可以修改bean定义的。
+	 * 为了保证在修改之前所有的bean定义的都存在，所以优先执行postProcessBeanDefinitionRegistry。如不是以上顺序，会出先再修改某个bean定义的报错，因为此bean定义的还没有被创建
+	 * @param beanFactory
+	 * @param beanFactoryPostProcessors
+	 */
 	public static void invokeBeanFactoryPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
-
+		/**
+		 * 这个doc说明很清楚：不管怎么样，先执行BeanDefinitionRegistryPostProcessors
+		 * BeanDefinitionRegistryPostProcessors 为 BeanFactoryPostProcessor 的子接口;
+		 * 它新增了方法：void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
+		 * 而BeanFactoryPostProcessor 的方法为;void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException;
+		 * 所以BeanDefinitionRegistryPostProcessors，它可以我们介入，改变Bean的一些定义信息
+		 */
 		// Invoke BeanDefinitionRegistryPostProcessors first, if any.
 		Set<String> processedBeans = new HashSet<>();
 
+		/**
+		 * 只有此beanFactory 是BeanDefinitionRegistry  才能执行BeanDefinitionRegistryPostProcessor，才能修改Bean的定义嘛
+		 */
 		if (beanFactory instanceof BeanDefinitionRegistry) {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
+			/**
+			 * 此处安放了两个容器，一个装载普通的BeanFactoryPostProcessor,另外一个装载和Bean定义有关的 BeanDefinitionRegistryPostProcessor
+			 * 另外都是LinkedList，所以执行顺序和set进去的顺序是保持一样的
+			 */
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
+			/**
+			 * 这里是我们自己的set进去的，若没set，这里就是空(若是Sprng容器里的，下面会处理，见下面);
+			 * 从此处可以看出，我们手动set进去的，最优先执行的
+			 */
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryProcessor =
@@ -71,12 +97,21 @@ final class PostProcessorRegistrationDelegate {
 				}
 			}
 
+			/**
+			 * 接下来，就是去执行Spring容器里面的一些PostProcessor了。他们顺序doc里也写得很清楚：
+			 * 先执行实现了PriorityOrdered接口的，然后是Ordered接口的，最后执行剩下的
+			 */
 			// Do not initialize FactoryBeans here: We need to leave all regular beans
 			// uninitialized to let the bean factory post-processors apply to them!
 			// Separate between BeanDefinitionRegistryPostProcessors that implement
 			// PriorityOrdered, Ordered, and the rest.
 			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
+			/**
+			 * 先从容器中拿出来所有的BeanDefinitionRegistryPostProcessor 然后先执行PriorityOrdered
+			 *  本例中有一个这个类型的处理器：ConfigurationClassPostProcessor（显然是处理@Configuration这种Bean的）至于这个Bean是什么时候注册进去的，前面有。
+			 *  在loadBeanDefinitions()初始化AnnotatedBeanDefinitionReader的时候调用的AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry)方法的时候
+			 */
 			// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
 			String[] postProcessorNames =
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
@@ -86,6 +121,7 @@ final class PostProcessorRegistrationDelegate {
 					processedBeans.add(ppName);
 				}
 			}
+			// 排序
 			sortPostProcessors(currentRegistryProcessors, beanFactory);
 			registryProcessors.addAll(currentRegistryProcessors);
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
@@ -122,6 +158,11 @@ final class PostProcessorRegistrationDelegate {
 				currentRegistryProcessors.clear();
 			}
 
+			/**
+			 * 现在，这里很明显：去执行BeanDefinitionRegistryPostProcessor的postProcessBeanFactory方法，
+			 * 以及 顶层接口BeanFactoryPostProcessor的postProcessBeanFactory方法
+			 * 我们当前环境regularPostProcessors长度为0，registryProcessors有一个解析@Configuration的处理器
+			 */
 			// Now, invoke the postProcessBeanFactory callback of all processors handled so far.
 			invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
 			invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
@@ -181,11 +222,25 @@ final class PostProcessorRegistrationDelegate {
 		beanFactory.clearMetadataCache();
 	}
 
+	/**
+	 * 1. {@link BeanPostProcessor} 中非 {@link MergedBeanDefinitionPostProcessor} 的实现类
+	 * 2. MergedBeanDefinitionPostProcessor 的实现类
+	 * 执行顺序：PriorityOrdered，Order，不指定顺序的实现类
+	 * @param beanFactory
+	 * @param applicationContext
+	 */
 	public static void registerBeanPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, AbstractApplicationContext applicationContext) {
-
+		/**
+		 * 从所与Bean定义中提取出BeanPostProcessor类型的Bean，显然，最初的6个bean，有三个是BeanPostProcessor：
+		 * AutowiredAnnotationBeanPostProcessor  RequiredAnnotationBeanPostProcessor  CommonAnnotationBeanPostProcessor
+		 */
 		String[] postProcessorNames = beanFactory.getBeanNamesForType(BeanPostProcessor.class, true, false);
 
+		/**
+		 * 向beanFactory又add了一个BeanPostProcessorChecker，并且此事后总数设置为了getBeanPostProcessorCount和addBeanPostProcessor的总和（+1表示自己）
+		 * 此处注意：第一个参数beanPostProcessorTargetCount表示的是处理器的总数，总数（包含两个位置离的，用于后面的校验）
+		 */
 		// Register BeanPostProcessorChecker that logs an info message when
 		// a bean is created during BeanPostProcessor instantiation, i.e. when
 		// a bean is not eligible for getting processed by all BeanPostProcessors.
@@ -245,6 +300,11 @@ final class PostProcessorRegistrationDelegate {
 		sortPostProcessors(internalPostProcessors, beanFactory);
 		registerBeanPostProcessors(beanFactory, internalPostProcessors);
 
+		/**
+		 * 最后此处需要注意的是：Spring还给我们注册了一个Bean的后置处理器：ApplicationListenerDetector  它的作用：用来检查所有得ApplicationListener
+		 * 有的人就想问了：之前不是注册过了吗，怎么这里又注册一次呢？其实上面的doc里面说得很清楚：
+		 * Re-register重新注册这个后置处理器。把它移动到处理器连条的最后面，最后执行（小技巧是：先remove，然后执行add操作~~~ 自己可以点进addBeanPostProcessor源码可以看到这个小技巧）
+		 */
 		// Re-register post-processor for detecting inner beans as ApplicationListeners,
 		// moving it to the end of the processor chain (for picking up proxies etc).
 		beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(applicationContext));

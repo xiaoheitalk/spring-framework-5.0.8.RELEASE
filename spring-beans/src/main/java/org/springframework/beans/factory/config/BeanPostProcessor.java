@@ -43,6 +43,13 @@ import org.springframework.lang.Nullable;
 public interface BeanPostProcessor {
 
 	/**
+	 * 接口中两个方法不能返回null，如果返回null那么在后续初始化方法将报空指针异常或者通过getBean()方法获取不到bena实例对象 ，
+	 * 因为后置处理器从Spring IoC容器中取出bean实例对象没有再次放回IoC容器中
+	 */
+	/**
+	 * 在Bean实例化/依赖注入完毕以及自定义的初始化方法之前调用。
+	 * 什么叫自定义初始化方法：比如init-method、比如@PostConstruct标、比如实现InitailztingBean接口的方法等等
+	 * bean:这个Bean实例  beanName：bean名称
 	 * Apply this BeanPostProcessor to the given new bean instance <i>before</i> any bean
 	 * initialization callbacks (like InitializingBean's {@code afterPropertiesSet}
 	 * or a custom init-method). The bean will already be populated with property values.
@@ -61,6 +68,7 @@ public interface BeanPostProcessor {
 	}
 
 	/**
+	 *  在上面基础上，初始化方法之后调用
 	 * Apply this BeanPostProcessor to the given new bean instance <i>after</i> any bean
 	 * initialization callbacks (like InitializingBean's {@code afterPropertiesSet}
 	 * or a custom init-method). The bean will already be populated with property values.
