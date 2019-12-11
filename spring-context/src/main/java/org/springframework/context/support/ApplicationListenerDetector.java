@@ -66,6 +66,12 @@ class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, 
 		return bean;
 	}
 
+	/**
+	 * 实现了接口ApplicationListener的bean，在它们创建时初始化之后，将它们添加到应用上下文的事件多播器上
+	 * @param bean the new bean instance
+	 * @param beanName the name of the bean
+	 * @return
+	 */
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) {
 		if (bean instanceof ApplicationListener) {
@@ -89,6 +95,11 @@ class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, 
 		return bean;
 	}
 
+	/**
+	 * 在这些ApplicationListener bean销毁之前，将它们从应用上下文的事件多播器上移除
+	 * @param bean the bean instance to be destroyed
+	 * @param beanName the name of the bean
+	 */
 	@Override
 	public void postProcessBeforeDestruction(Object bean, String beanName) {
 		if (bean instanceof ApplicationListener) {

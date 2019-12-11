@@ -85,6 +85,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/** Set of registered singletons, containing the bean names in registration order 保存当前所有已注册的bean*/
 	private final Set<String> registeredSingletons = new LinkedHashSet<>(256);
 
+	//singletonsCurrentlyInCreation字段含义：会缓存下来所有的正在创建中的Bean，如果有Bean是循环引用的  会把这种Bean先放进去
 	/** Names of beans that are currently in creation */
 	private final Set<String> singletonsCurrentlyInCreation =
 			Collections.newSetFromMap(new ConcurrentHashMap<>(16));
@@ -135,9 +136,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	protected void addSingleton(String beanName, Object singletonObject) {
 		synchronized (this.singletonObjects) {
-			this.singletonObjects.put(beanName, singletonObject);
-			this.singletonFactories.remove(beanName);
-			this.earlySingletonObjects.remove(beanName);
+			this.singletonObjects.put(beanName, singletonObject); //缓存起来
+			this.singletonFactories.remove(beanName); //把对应ObjectFactory的缓存移除
+			this.earlySingletonObjects.remove(beanName); //把对应earlySingletonObjects的缓存移除
 			this.registeredSingletons.add(beanName);
 		}
 	}
@@ -178,7 +179,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+		// 此处是先从已经缓存好了的singletonObjects的Map中，查看有木有
 		Object singletonObject = this.singletonObjects.get(beanName);
+		// 若缓存里没有。并且，并且，并且这个Bean必须在创建中，才会进继续下一步。
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
 			synchronized (this.singletonObjects) {
 				singletonObject = this.earlySingletonObjects.get(beanName);
@@ -206,9 +209,10 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(beanName, "Bean name must not be null");
 		synchronized (this.singletonObjects) {
+			// 从缓存中获取（上面获取过一次的，这里是双重判定）
 			Object singletonObject = this.singletonObjects.get(beanName);
 			if (singletonObject == null) {
-				if (this.singletonsCurrentlyInDestruction) {
+				if (this.singletonsCurrentlyInDestruction) {// 如果这个Bean正在被销毁，就抛异常了
 					throw new BeanCreationNotAllowedException(beanName,
 							"Singleton bean creation not allowed while singletons of this factory are in destruction " +
 							"(Do not request a bean from a BeanFactory in a destroy method implementation!)");
@@ -223,6 +227,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					this.suppressedExceptions = new LinkedHashSet<>();
 				}
 				try {
+					// 把这个实例生成出来，并且标志位设为true
 					singletonObject = singletonFactory.getObject();
 					newSingleton = true;
 				}
@@ -235,6 +240,11 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					}
 				}
 				catch (BeanCreationException ex) {
+					/**
+					 * 处理异常
+					 * 比如我们经常遇到的UnsatisfiedDependencyException异常：
+					 * @Autowired 的时候找不到依赖的Bean就是这个异常(一般由NoSuchBeanDefinitionException这个异常导致)
+					 */
 					if (recordSuppressedExceptions) {
 						for (Exception suppressedException : this.suppressedExceptions) {
 							ex.addRelatedCause(suppressedException);
@@ -246,8 +256,10 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					if (recordSuppressedExceptions) {
 						this.suppressedExceptions = null;
 					}
+					// 创建完成后再检查一遍。做的操作为：从正在创建缓存中移除
 					afterSingletonCreation(beanName);
 				}
+				//若是新的Bean，那就执行addSingleton这个方法：增加到缓存singletonObjects，registeredSingletons，同时从singletonFactories，earlySingletonObjects移除
 				if (newSingleton) {
 					addSingleton(beanName, singletonObject);
 				}
@@ -333,6 +345,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	}
 
 	/**
+	 * 创建前置检查：
+	 * 1、若在inCreationCheckExclusions面校验名单里，是ok的
+	 * 2、singletonsCurrentlyInCreation把它添加进去，证明这个Bean正在创建中
 	 * Callback before singleton creation.
 	 * <p>The default implementation register the singleton as currently in creation.
 	 * @param beanName the name of the singleton about to be created
