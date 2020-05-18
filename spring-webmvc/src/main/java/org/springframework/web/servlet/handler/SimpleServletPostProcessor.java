@@ -104,6 +104,14 @@ public class SimpleServletPostProcessor implements
 		return bean;
 	}
 
+	/**
+	 * 相当于当Servlet是以Bean的形式注入容器的时候，Bean初始化完成后，会自动调用它的init方法
+	 * 如果config为null，那么它传入可能为代理的DelegatingServletConfig
+	 * @param bean the new bean instance
+	 * @param beanName the name of the bean
+	 * @return
+	 * @throws BeansException
+	 */
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof Servlet) {

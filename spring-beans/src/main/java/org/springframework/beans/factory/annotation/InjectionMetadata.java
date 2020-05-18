@@ -89,6 +89,7 @@ public class InjectionMetadata {
 				if (debug) {
 					logger.debug("Processing injected element of bean '" + beanName + "': " + element);
 				}
+				// 主要的方法， 在InjectedElement#inject
 				element.inject(target, beanName, pvs);
 			}
 		}

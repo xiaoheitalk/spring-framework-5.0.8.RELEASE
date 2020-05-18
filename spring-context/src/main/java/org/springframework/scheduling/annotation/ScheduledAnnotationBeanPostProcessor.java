@@ -311,6 +311,12 @@ public class ScheduledAnnotationBeanPostProcessor
 		return bean;
 	}
 
+	/**
+	 * 解析方法中标注有@Scheduled注解的 然后加入当作一个任务进行执行
+	 * @param bean the new bean instance
+	 * @param beanName the name of the bean
+	 * @return
+	 */
 	@Override
 	public Object postProcessAfterInitialization(final Object bean, String beanName) {
 		Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);

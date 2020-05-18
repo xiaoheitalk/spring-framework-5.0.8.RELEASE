@@ -140,6 +140,15 @@ public class RequiredAnnotationBeanPostProcessor extends InstantiationAwareBeanP
 	public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
 	}
 
+	/**
+	 * 属性赋值：校验，标注了@Required注解的，必须是是存在这个Bean的
+	 * @param pvs
+	 * @param pds
+	 * @param bean
+	 * @param beanName
+	 * @return
+	 * @throws BeansException
+	 */
 	@Override
 	public PropertyValues postProcessPropertyValues(
 			PropertyValues pvs, PropertyDescriptor[] pds, Object bean, String beanName) throws BeansException {

@@ -129,6 +129,14 @@ public class InitDestroyAnnotationBeanPostProcessor
 		metadata.checkConfigMembers(beanDefinition);
 	}
 
+	/**
+	 * 处理声明周期注解方法的处理器。有了它，就允许用注解代替去实现Spring的接口InitializingBean和DisposableBean了。
+	 *  比如@PostConstruct和@PreDestroy等
+	 * @param bean the new bean instance
+	 * @param beanName the name of the bean
+	 * @return
+	 * @throws BeansException
+	 */
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		LifecycleMetadata metadata = findLifecycleMetadata(bean.getClass());

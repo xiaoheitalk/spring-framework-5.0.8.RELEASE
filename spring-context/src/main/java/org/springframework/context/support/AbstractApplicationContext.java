@@ -530,8 +530,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			// Tell the subclass to refresh the internal bean factory.
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
-			// Prepare the bean factory for use in this context. 设置 BeanFactory 的类加载器，添加几个 BeanPostProcessor，手动注册几个特殊的 bean
-			//配置标准的beanFactory，设置ClassLoader，设置SpEL表达式解析器等
+			/**
+			 * 设置 BeanFactory 的类加载器，添加几个 BeanPostProcessor，手动注册几个特殊的 bean
+			 *  配置标准的beanFactory，设置ClassLoader，设置SpEL表达式解析器等
+			 */
+			// Prepare the bean factory for use in this context.
 			prepareBeanFactory(beanFactory);
 
 			try {
@@ -619,16 +622,18 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			logger.info("Refreshing " + this);
 		}
 
+		/**
+		 * 这是扩展方法，由子类去实现，可以在验证之前为系统属性设置一些值可以在子类中实现此方法
+		 * 因为我们这边是AnnotationConfigApplicationContext，可以看到不管父类还是自己，都什么都没做，所以此处先忽略
+		 */
 		// Initialize any placeholder property sources in the context environment
-		// 这是扩展方法，由子类去实现，可以在验证之前为系统属性设置一些值可以在子类中实现此方法
-		// 因为我们这边是AnnotationConfigApplicationContext，可以看到不管父类还是自己，都什么都没做，所以此处先忽略
 		initPropertySources();
 
+		/**
+		 * 这里有两步，getEnvironment()，然后是是验证是否系统环境中有RequiredProperties参数值
+		 */
 		// Validate that all properties marked as required are resolvable
 		// see ConfigurablePropertyResolver#setRequiredProperties
-		//这里有两步，getEnvironment()，然后是是验证是否系统环境中有RequiredProperties参数值 如下详情
-		// 然后管理Environment#validateRequiredProperties 后面在讲到环境的时候再专门讲解吧
-		// 这里其实就干了一件事，验证是否存在需要的属性
 		getEnvironment().validateRequiredProperties();
 
 		// Allow for the collection of early ApplicationEvents,
@@ -662,6 +667,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
+	 * 1.增加对SpEl语言的支持
+	 * 2.增加对属性编辑器的支持
+	 * 3.增加ApplicationContextAwareProcessor的支持，同时忽略相关*Aware接口
+	 * 4.注册一些固定依赖的属性
+	 * 5.增加AspectJ的支持
+	 * 6.将相关环境变量及属性以单例模式注册
 	 * Configure the factory's standard context characteristics,
 	 * such as the context's ClassLoader and post-processors.
 	 * @param beanFactory the BeanFactory to configure
@@ -670,8 +681,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// 设置 BeanFactory 的类加载器，我们知道 BeanFactory 需要加载类，也就需要类加载器，这里设置为加载当前 ApplicationContext 类的类加载器
 		// Tell the internal bean factory to use the context's class loader etc.
 		beanFactory.setBeanClassLoader(getClassLoader());
-		// 设置 BeanExpressionResolver, 设置EL表达式解析器（Bean初始化完成后填充属性时会用到）
-		// spring3增加了表达式语言的支持，默认可以使用#{bean.xxx}的形式来调用相关属性值
+		/**
+		 * 设置 BeanExpressionResolver, 设置EL表达式解析器（Bean初始化完成后填充属性时会用到），可以使用#{bean.xxx}的形式来调用相关属性值
+		 * AbstractBeanFactory#evaluateBeanDefinitionString 调用
+		 */
 		beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
 		// 设置属性注册解析器PropertyEditor 这个主要是对bean的属性等设置管理的一个工具
 		beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
@@ -712,11 +725,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		 * 如果是ResourceLoader、ApplicationEventPublisher、ApplicationContext等等就注入当前对象this(applicationContext对象)
 		 * 2.此处registerResolvableDependency()方法注意：
 		 * 它会把他们加入到DefaultListableBeanFactory的resolvableDependencies字段里面缓存这，
-		 * 供后面处理依赖注入的时候使用 DefaultListableBeanFactory#resolveDependency处理依赖关系;
+		 * 供后面处理依赖注入的时候使用 DefaultListableBeanFactory#resolveDependency 处理依赖关系;
 		 * 这也是为什么我们可以通过依赖注入的方式，直接注入这几个对象比如ApplicationContext可以直接依赖注入,
 		 * 但是需要注意的是：这些Bean，Spring的IOC容器里其实是没有的。
 		 * beanFactory.getBeanDefinitionNames()和beanFactory.getSingletonNames()都是找不到他们的，所以特别需要理解这一点
 		 * 至于容器中没有，但是我们还是可以@Autowired直接注入的有哪些
+		 */
+		/**
+		 * 注册这些依赖后，例如当注册了对BeanFactory.class的解析依赖后，
+		 * 当bean的属性注入的时候，一旦检测到属性为BeanFactory类型便会将beanFactory的实例注入进去
+		 *
 		 */
 		// BeanFactory interface not registered as resolvable type in a plain factory.
 		// MessageSource registered (and found for autowiring) as a bean.

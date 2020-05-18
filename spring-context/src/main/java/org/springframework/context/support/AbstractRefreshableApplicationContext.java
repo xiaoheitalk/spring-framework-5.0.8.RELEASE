@@ -129,12 +129,18 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 		}
 		try {
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
+			//为了序列化指定id
 			beanFactory.setSerializationId(getId());
-			// 这句比较简单，就是把当前旧容器的一些配置值复制给新容器
-			// allowBeanDefinitionOverriding属性是指是否允对一个名字相同但definition不同进行重新注册，默认是true。
-			// allowCircularReferences属性是指是否允许Bean之间循环引用，默认是true.
-			// 这两个属性值初始值为空：复写此方法即可customizeBeanFactory
+			/**
+			 * 这句比较简单，就是把当前旧容器的一些配置值复制给新容器
+			 * allowBeanDefinitionOverriding 属性是指是否允对一个名字相同但definition不同 进行重新注册
+			 * allowCircularReferences属性是指是否允许Bean之间循环引用，默认是true.
+			 * 这两个属性值初始值为空：复写此方法即可customizeBeanFactory
+			 */
 			customizeBeanFactory(beanFactory);
+			/**
+			 * 加载BeanDefinition
+			 */
 			loadBeanDefinitions(beanFactory);
 			synchronized (this.beanFactoryMonitor) {
 				this.beanFactory = beanFactory;
@@ -213,6 +219,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	}
 
 	/**
+	 * 子类通过覆盖此方法来设置
 	 * Customize the internal bean factory used by this context.
 	 * Called for each {@link #refresh()} attempt.
 	 * <p>The default implementation applies this context's

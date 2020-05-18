@@ -393,6 +393,15 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		return (candidateConstructors.length > 0 ? candidateConstructors : null);
 	}
 
+	/**
+	 * 给属性赋值：解析该Bean的Autowired信息,然后给inject进去
+	 * @param pvs
+	 * @param pds
+	 * @param bean
+	 * @param beanName
+	 * @return
+	 * @throws BeanCreationException
+	 */
 	@Override
 	public PropertyValues postProcessPropertyValues(
 			PropertyValues pvs, PropertyDescriptor[] pds, Object bean, String beanName) throws BeanCreationException {
@@ -598,9 +607,12 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 		@Override
 		protected void inject(Object bean, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
+			// 拿到这个字段名
 			Field field = (Field) this.member;
 			Object value;
+			// 大多数情况下，这里都是false
 			if (this.cached) {
+				// 把当前bean所依赖的这个Bean解析出来（从Spring容器里面拿，或者别的地方获取吧~~~）
 				value = resolvedCachedArgument(beanName, this.cachedFieldValue);
 			}
 			else {
@@ -617,11 +629,15 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				}
 				synchronized (this) {
 					if (!this.cached) {
+						// 如果已经拿到了这个Bean实例，
 						if (value != null || this.required) {
 							this.cachedFieldValue = desc;
+							// 把该Bean的依赖关系再注册一次
 							registerDependentBeans(beanName, autowiredBeanNames);
+							// 因为是按照类型注入，所以肯定只能指导一个这个的依赖Bean，否则上面解析就已经报错了
 							if (autowiredBeanNames.size() == 1) {
 								String autowiredBeanName = autowiredBeanNames.iterator().next();
+								// 这里是来处理放置缓存的字段值
 								if (beanFactory.containsBean(autowiredBeanName) &&
 										beanFactory.isTypeMatch(autowiredBeanName, field.getType())) {
 									this.cachedFieldValue = new ShortcutDependencyDescriptor(
@@ -636,6 +652,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					}
 				}
 			}
+			// 给该对象的该字段赋值。注意这里makeAccessible设置为true了，所以即使你的字段是private的也木有关系哦
 			if (value != null) {
 				ReflectionUtils.makeAccessible(field);
 				field.set(bean, value);

@@ -161,6 +161,7 @@ public abstract class ClassUtils {
 	}
 
 	/**
+	 * 返回默认的类加载器
 	 * Return the default ClassLoader to use: typically the thread context
 	 * ClassLoader, if available; the ClassLoader that loaded the ClassUtils
 	 * class will be used as fallback.

@@ -82,7 +82,7 @@ public class BeanValidationPostProcessor implements BeanPostProcessor, Initializ
 		}
 	}
 
-
+	//对bean进行数据校验
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		if (!this.afterInitialization) {
