@@ -3,40 +3,40 @@
   <ID>JAVA</ID>
   <OriginalElement>org.springframework.beans.factory.xml.DocumentLoader</OriginalElement>
   <nodes>
-    <node x="888.0" y="464.0">org.springframework.beans.factory.xml.DocumentLoader</node>
-    <node x="499.0" y="464.0">org.springframework.core.io.ResourceLoader</node>
-    <node x="523.5" y="313.0">org.springframework.beans.factory.xml.XmlBeanDefinitionReader</node>
-    <node x="64.0" y="80.0">org.springframework.beans.factory.support.BeanDefinitionReader</node>
-    <node x="337.0" y="80.0">org.springframework.core.env.EnvironmentCapable</node>
-    <node x="0.0" y="541.0">org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader</node>
-    <node x="0.0" y="692.0">org.springframework.beans.factory.xml.BeanDefinitionParserDelegate</node>
-    <node x="28.0" y="464.0">org.springframework.beans.factory.xml.BeanDefinitionDocumentReader</node>
-    <node x="297.0" y="197.0">org.springframework.beans.factory.support.AbstractBeanDefinitionReader</node>
+    <node x="923.5" y="465.0">org.springframework.beans.factory.xml.DocumentLoader</node>
+    <node x="513.0" y="465.0">org.springframework.core.io.ResourceLoader</node>
+    <node x="556.75" y="313.0">org.springframework.beans.factory.xml.XmlBeanDefinitionReader</node>
+    <node x="73.5" y="79.5">org.springframework.beans.factory.support.BeanDefinitionReader</node>
+    <node x="361.5" y="79.5">org.springframework.core.env.EnvironmentCapable</node>
+    <node x="0.0" y="543.0">org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader</node>
+    <node x="0.0" y="695.0">org.springframework.beans.factory.xml.BeanDefinitionParserDelegate</node>
+    <node x="28.0" y="465.0">org.springframework.beans.factory.xml.BeanDefinitionDocumentReader</node>
+    <node x="321.5" y="196.5">org.springframework.beans.factory.support.AbstractBeanDefinitionReader</node>
   </nodes>
   <notes>
-    <note x="830.0" y="385.0">
+    <note x="858.0" y="386.0">
       <node>org.springframework.beans.factory.xml.DocumentLoader</node>
       <value>定义从资源、文件加载到转换为Document的功能</value>
       <edge>
-        <point x="0.0" y="-13.5" />
+        <point x="0.0" y="-14.0" />
         <point x="0.0" y="14.5" />
       </edge>
     </note>
-    <note x="369.0" y="385.0">
+    <note x="371.0" y="386.0">
       <node>org.springframework.core.io.ResourceLoader</node>
       <value>定义资源加载器，主要应用于根据给定的资源文件地址返回对应的Resource</value>
       <edge>
-        <point x="0.0" y="-13.5" />
+        <point x="0.0" y="-14.0" />
         <point x="0.0" y="14.5" />
       </edge>
     </note>
-    <note x="585.0" y="158.0">
+    <note x="611.5" y="158.0">
       <node>org.springframework.beans.factory.xml.XmlBeanDefinitionReader</node>
       <value>1、通过继承自AbstractBeanDefinitionReader 中的方法，来使用ResourceLoader将资源文件\n路径转换为对应的Resource文件；\n2、通过DocumentLoader对Resource文件进行转换，将Resource文件转换为Document文件；\n3、通过实现接口BeanDefinitionDocumentReader 的DefaultBeanDefinitionDocumentReader类\n对Document 进行解析，并使用BeanDefinitionParserDelegate 对Element进行解析。</value>
       <edge>
-        <point x="57.0" y="-13.5" />
-        <point x="694.5" y="288.0" />
-        <point x="844.0" y="288.0" />
+        <point x="57.5" y="-14.0" />
+        <point x="729.25" y="288.0" />
+        <point x="887.0" y="288.0" />
         <point x="0.0" y="52.5" />
       </edge>
     </note>
@@ -44,68 +44,68 @@
       <node>org.springframework.beans.factory.support.BeanDefinitionReader</node>
       <value>主要定义资源文件读取并转换为BeanDefinition的各个功能</value>
       <edge>
-        <point x="0.0" y="-13.5" />
+        <point x="0.0" y="-14.0" />
         <point x="0.0" y="14.5" />
       </edge>
     </note>
-    <note x="352.0" y="0.0">
+    <note x="373.0" y="0.0">
       <node>org.springframework.core.env.EnvironmentCapable</node>
       <value>定义获取Environment方法</value>
       <edge>
-        <point x="0.0" y="-13.5" />
+        <point x="0.0" y="-14.0" />
         <point x="0.0" y="14.5" />
       </edge>
     </note>
-    <note x="46.0" y="613.0">
+    <note x="42.0" y="616.0">
       <node>org.springframework.beans.factory.xml.BeanDefinitionParserDelegate</node>
       <value>定义解析Element 的各种方法</value>
       <edge>
-        <point x="0.0" y="-13.5" />
+        <point x="0.0" y="-14.0" />
         <point x="0.0" y="14.5" />
       </edge>
     </note>
-    <note x="32.0" y="385.0">
+    <note x="25.0" y="386.0">
       <node>org.springframework.beans.factory.xml.BeanDefinitionDocumentReader</node>
       <value>定义读取Docuemnt并注册BeanDefinition功能</value>
       <edge>
-        <point x="0.0" y="-13.5" />
+        <point x="0.0" y="-14.0" />
         <point x="0.0" y="14.5" />
       </edge>
     </note>
-    <note x="545.0" y="79.0">
+    <note x="571.5" y="79.0">
       <node>org.springframework.beans.factory.support.AbstractBeanDefinitionReader</node>
       <value>对EnvironmentCapable 、BeanDefinitionReader类定义的功能进行实</value>
       <edge>
-        <point x="89.33333333333337" y="-13.5" />
-        <point x="520.3333333333334" y="133.0" />
-        <point x="738.0" y="133.0" />
+        <point x="90.0" y="-14.0" />
+        <point x="546.5" y="133.0" />
+        <point x="776.5" y="133.0" />
         <point x="0.0" y="14.5" />
       </edge>
     </note>
   </notes>
   <edges>
     <edge source="org.springframework.beans.factory.xml.XmlBeanDefinitionReader" target="org.springframework.beans.factory.support.AbstractBeanDefinitionReader">
-      <point x="-57.0" y="-13.5" />
-      <point x="580.5" y="288.0" />
-      <point x="431.0" y="288.0" />
-      <point x="0.0" y="13.5" />
+      <point x="-57.5" y="-14.0" />
+      <point x="614.25" y="288.0" />
+      <point x="456.5" y="288.0" />
+      <point x="0.0" y="14.0" />
     </edge>
     <edge source="org.springframework.beans.factory.support.AbstractBeanDefinitionReader" target="org.springframework.beans.factory.support.BeanDefinitionReader">
-      <point x="-89.33333333333326" y="-13.5" />
-      <point x="341.66666666666674" y="133.0" />
-      <point x="166.0" y="133.0" />
-      <point x="0.0" y="13.5" />
+      <point x="-90.0" y="-14.0" />
+      <point x="366.5" y="133.0" />
+      <point x="176.5" y="133.0" />
+      <point x="0.0" y="14.0" />
     </edge>
     <edge source="org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader" target="org.springframework.beans.factory.xml.BeanDefinitionDocumentReader">
-      <point x="0.0" y="-13.5" />
-      <point x="0.0" y="13.5" />
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
     </edge>
     <edge source="org.springframework.beans.factory.support.AbstractBeanDefinitionReader" target="org.springframework.core.env.EnvironmentCapable">
-      <point x="0.0" y="-13.5" />
-      <point x="0.0" y="13.5" />
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
     </edge>
   </edges>
-  <settings layout="Hierarchic Group" zoom="1.0" x="653.5" y="421.5" />
+  <settings layout="Hierarchic Group" zoom="1.0" x="834.0" y="459.0" />
   <SelectedNodes />
   <Categories />
   <SCOPE>All</SCOPE>
