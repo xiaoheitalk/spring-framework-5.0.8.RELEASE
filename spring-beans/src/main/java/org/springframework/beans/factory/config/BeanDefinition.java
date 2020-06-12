@@ -61,6 +61,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	int ROLE_APPLICATION = 0;
 
 	/**
+	 * Bean是用户定义的
 	 * Role hint indicating that a {@code BeanDefinition} is a supporting
 	 * part of some larger configuration, typically an outer
 	 * {@link org.springframework.beans.factory.parsing.ComponentDefinition}.
@@ -72,6 +73,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	int ROLE_SUPPORT = 1;
 
 	/**
+	 * Bean是Spring的
 	 * Role hint indicating that a {@code BeanDefinition} is providing an
 	 * entirely background role and has no relevance to the end-user. This hint is
 	 * used when registering beans that are completely part of the internal workings
@@ -158,6 +160,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	String[] getDependsOn();
 
 	/**
+	 * 设置该对象是否可以被其他对象自动装配：no，byType，byName，constructor，autodetect
 	 * Set whether this bean is a candidate for getting autowired into some other bean.
 	 * <p>Note that this flag is designed to only affect type-based autowiring.
 	 * It does not affect explicit references by name, which will get resolved even
@@ -168,6 +171,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Return whether this bean is a candidate for getting autowired into some other bean.
+	 * 默认值为no
 	 */
 	boolean isAutowireCandidate();
 

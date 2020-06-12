@@ -73,7 +73,7 @@ public interface SingletonBeanRegistry {
 	@Nullable
 	Object getSingleton(String beanName);
 
-	/**
+	/**ogback
 	 * Check if this registry contains a singleton instance with the given name.
 	 * <p>Only checks already instantiated singletons; does not return {@code true}
 	 * for singleton bean definitions which have not been instantiated yet.

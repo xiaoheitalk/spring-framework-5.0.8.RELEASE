@@ -21,7 +21,7 @@ import org.springframework.lang.Nullable;
 /**
  * Interface defining a generic contract for attaching and accessing metadata
  * to/from arbitrary objects.
- *
+ * Spring定义的属性访问器，对Bean的属性进行操作的API,例如设置属性、获取属性、判断是否存在该属性，返回bean所有的属性名称等
  * @author Rob Harrop
  * @since 2.0
  */
