@@ -562,7 +562,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		if (instanceWrapper == null) {
 			/**
 			 * 实际创建的交给createBeanInstance来完成，
-			 * 	bean的生成，这里会使用默认的类生成器，然后包装成BeanWrapperImpl类，为了下面的populateBean方法的属性注入做准备
+			 * 	bean的生成，这里会使用默认的类生成器，populateBean然后包装成BeanWrapperImpl类，为了下面的populateBean方法的属性注入做准备
 			 */
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}

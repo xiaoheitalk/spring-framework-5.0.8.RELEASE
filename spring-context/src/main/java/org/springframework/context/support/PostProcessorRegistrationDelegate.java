@@ -49,23 +49,16 @@ import org.springframework.lang.Nullable;
 final class PostProcessorRegistrationDelegate {
 
 	/**
-	 * 1. 先执行BeanDefinitionRegistryPostProcessor的实现类的postProcess*方法，按照手动set，PriorityOrdered，Order，不指定顺序执行
+	 * 1. 先执行 BeanDefinitionRegistryPostProcessor 的实现类的postProcess*方法，按照手动set，PriorityOrdered，Order，不指定顺序执行
 	 * 2. 后执行BeanFactoryPostProcessor的实现类的postProcess*方法，按照手动set（在1处执行了），PriorityOrdered，Order，不指定顺序执行
-	 * 那为什么逻辑要先执行postProcessBeanDefinitionRegistry然后在执行postProcessBeanFactory呢？
+	 * 那为什么逻辑要先执行 postProcessBeanDefinitionRegistry 然后在执行 postProcessBeanFactory 呢？
 	 * 因为postProcessBeanDefinitionRegistry是用来创建bean定义的，而postProcessBeanFactory是修改BeanFactory,当然postProcessBeanFactory也可以修改bean定义的。
 	 * 为了保证在修改之前所有的bean定义的都存在，所以优先执行postProcessBeanDefinitionRegistry。如不是以上顺序，会出先再修改某个bean定义的报错，因为此bean定义的还没有被创建
 	 * @param beanFactory
-	 * @param beanFactoryPostProcessors
+	 * @param beanFactoryPostProcessors 手动set的
 	 */
 	public static void invokeBeanFactoryPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
-		/**
-		 * 这个doc说明很清楚：不管怎么样，先执行BeanDefinitionRegistryPostProcessors
-		 * BeanDefinitionRegistryPostProcessors 为 BeanFactoryPostProcessor 的子接口;
-		 * 它新增了方法：void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
-		 * 而BeanFactoryPostProcessor 的方法为;void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException;
-		 * 所以BeanDefinitionRegistryPostProcessors，它可以我们介入，改变Bean的一些定义信息
-		 */
 		// Invoke BeanDefinitionRegistryPostProcessors first, if any.
 		Set<String> processedBeans = new HashSet<>();
 
@@ -75,20 +68,15 @@ final class PostProcessorRegistrationDelegate {
 		if (beanFactory instanceof BeanDefinitionRegistry) {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
 			/**
-			 * 此处安放了两个容器，一个装载普通的BeanFactoryPostProcessor,另外一个装载和Bean定义有关的 BeanDefinitionRegistryPostProcessor
-			 * 另外都是LinkedList，所以执行顺序和set进去的顺序是保持一样的
+			 * 此处安放了两个容器，一个装载普通的BeanFactoryPostProcessor,
+			 * 另外一个装载和Bean定义有关的 BeanDefinitionRegistryPostProcessor
 			 */
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
-			/**
-			 * 这里是我们自己的set进去的，若没set，这里就是空(若是Sprng容器里的，下面会处理，见下面);
-			 * 从此处可以看出，我们手动set进去的，最优先执行的
-			 */
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
-					BeanDefinitionRegistryPostProcessor registryProcessor =
-							(BeanDefinitionRegistryPostProcessor) postProcessor;
+					BeanDefinitionRegistryPostProcessor registryProcessor = (BeanDefinitionRegistryPostProcessor) postProcessor;
 					registryProcessor.postProcessBeanDefinitionRegistry(registry);
 					registryProcessors.add(registryProcessor);
 				}
@@ -98,7 +86,7 @@ final class PostProcessorRegistrationDelegate {
 			}
 
 			/**
-			 * 接下来，就是去执行Spring容器里面的一些PostProcessor了。他们顺序doc里也写得很清楚：
+			 * 接下来，就是去执行Spring容器里面的一些PostProcessor了。
 			 * 先执行实现了PriorityOrdered接口的，然后是Ordered接口的，最后执行剩下的
 			 */
 			// Do not initialize FactoryBeans here: We need to leave all regular beans
@@ -108,13 +96,13 @@ final class PostProcessorRegistrationDelegate {
 			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
 			/**
-			 * 先从容器中拿出来所有的BeanDefinitionRegistryPostProcessor 然后先执行PriorityOrdered
+			 * 先从容器中拿出来所有的 BeanDefinitionRegistryPostProcessor 然后先执行 PriorityOrdered
 			 *  本例中有一个这个类型的处理器：ConfigurationClassPostProcessor（显然是处理@Configuration这种Bean的）至于这个Bean是什么时候注册进去的，前面有。
-			 *  在loadBeanDefinitions()初始化AnnotatedBeanDefinitionReader的时候调用的AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry)方法的时候
+			 *  在 loadBeanDefinitions() 初始化 AnnotatedBeanDefinitionReader 的时候调用的
+			 *  AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry)方法的时候
 			 */
 			// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
-			String[] postProcessorNames =
-					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
+			String[] postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {
 				if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
 					currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
@@ -166,9 +154,7 @@ final class PostProcessorRegistrationDelegate {
 			// Now, invoke the postProcessBeanFactory callback of all processors handled so far.
 			invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
 			invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
-		}
-
-		else {
+		}else {
 			// Invoke factory processors registered with the context instance.
 			invokeBeanFactoryPostProcessors(beanFactoryPostProcessors, beanFactory);
 		}
@@ -232,7 +218,7 @@ final class PostProcessorRegistrationDelegate {
 	public static void registerBeanPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, AbstractApplicationContext applicationContext) {
 		/**
-		 * 从所与Bean定义中提取出BeanPostProcessor类型的Bean，显然，最初的6个bean，有三个是BeanPostProcessor：
+		 * 从所与Bean定义中提取出BeanPostProcessor类型的Bean，
 		 * AutowiredAnnotationBeanPostProcessor  RequiredAnnotationBeanPostProcessor  CommonAnnotationBeanPostProcessor
 		 */
 		String[] postProcessorNames = beanFactory.getBeanNamesForType(BeanPostProcessor.class, true, false);
@@ -301,7 +287,7 @@ final class PostProcessorRegistrationDelegate {
 		registerBeanPostProcessors(beanFactory, internalPostProcessors);
 
 		/**
-		 * 最后此处需要注意的是：Spring还给我们注册了一个Bean的后置处理器：ApplicationListenerDetector  它的作用：用来检查所有得ApplicationListener
+		 * 最后此处需要注意的是：Spring还给我们注册了一个Bean的后置处理器：ApplicationListenerDetector  它的作用：用来检查所有的 ApplicationListener
 		 * 有的人就想问了：之前不是注册过了吗，怎么这里又注册一次呢？其实上面的doc里面说得很清楚：
 		 * Re-register重新注册这个后置处理器。把它移动到处理器连条的最后面，最后执行
 		 * （小技巧是：先remove，然后执行add操作~~~ 自己可以点进addBeanPostProcessor源码可以看到这个小技巧）
