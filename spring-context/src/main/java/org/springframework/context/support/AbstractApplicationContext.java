@@ -544,8 +544,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// 这里是提供给子类的扩展点，到这里的时候，所有的 Bean 都加载、注册完成了，但是都还没有初始化
 				/**
 				 * 模板方法，允许在子类中对beanFactory进行后置处理: 具体的子类可以在这步的时候添加一些特殊的 BeanFactoryPostProcessor 的实现类或做点什么事
-				 * 比如一些web的ApplicationContext，就实现了自己的逻辑，做一些自己的web相关的事情
-				 */
+						* 比如一些web的ApplicationContext，就实现了自己的逻辑，做一些自己的web相关的事情
+						*/
 				// Allows post-processing of the bean factory in context subclasses.
 				postProcessBeanFactory(beanFactory);
 				// 调用 BeanFactoryPostProcessor 各个实现类的 postProcessBeanFactory(factory) 方法
