@@ -60,7 +60,10 @@ final class SimpleMetadataReader implements MetadataReader {
 		finally {
 			is.close();
 		}
-
+		/**
+		 * 通过流构建出一个 AnnotationMetadataReadingVisitor，读取从而获取到各种信息
+		 * 它实现了 ClassVisitor，所以可以作为入参传给ClassReader ASM去解析
+		 */
 		AnnotationMetadataReadingVisitor visitor = new AnnotationMetadataReadingVisitor(classLoader);
 		classReader.accept(visitor, ClassReader.SKIP_DEBUG);
 

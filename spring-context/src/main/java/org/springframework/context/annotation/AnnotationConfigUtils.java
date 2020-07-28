@@ -280,6 +280,12 @@ public class AnnotationConfigUtils {
 		return ScopedProxyCreator.createScopedProxy(definition, registry, proxyTargetClass);
 	}
 
+	/**
+	 * 转换成AnnotationAttributes（LinkedHashMap），模糊掉注解类型
+	 * @param metadata
+	 * @param annotationClass
+	 * @return
+	 */
 	@Nullable
 	static AnnotationAttributes attributesFor(AnnotatedTypeMetadata metadata, Class<?> annotationClass) {
 		return attributesFor(metadata, annotationClass.getName());

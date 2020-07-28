@@ -104,6 +104,7 @@ public interface ClassMetadata {
 	String[] getInterfaceNames();
 
 	/**
+	 * 基于：Class#getDeclaredClasses  返回类中定义的公共、私有、保护的内部类
 	 * Return the names of all classes declared as members of the class represented by
 	 * this ClassMetadata object. This includes public, protected, default (package)
 	 * access, and private classes and interfaces declared by the class, but excludes

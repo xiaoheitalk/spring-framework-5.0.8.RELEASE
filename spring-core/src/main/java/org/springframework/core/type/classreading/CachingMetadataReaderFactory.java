@@ -27,6 +27,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.lang.Nullable;
 
 /**
+ * 提高效率
  * Caching implementation of the {@link MetadataReaderFactory} interface,
  * caching a {@link MetadataReader} instance per Spring {@link Resource} handle
  * (i.e. per ".class" file).

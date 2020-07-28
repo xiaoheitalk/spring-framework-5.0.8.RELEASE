@@ -39,7 +39,7 @@ import org.springframework.util.MultiValueMap;
  * @since 2.5
  */
 public class StandardAnnotationMetadata extends StandardClassMetadata implements AnnotationMetadata {
-
+	// this.annotations = introspectedClass.getAnnotations()
 	private final Annotation[] annotations;
 
 	private final boolean nestedAnnotationsAsMap;

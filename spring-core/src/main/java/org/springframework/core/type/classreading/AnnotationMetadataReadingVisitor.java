@@ -99,7 +99,7 @@ public class AnnotationMetadataReadingVisitor extends ClassMetadataReadingVisito
 
 	@Override
 	public Set<String> getMetaAnnotationTypes(String annotationName) {
-		Set<String> metaAnnotationTypes = tAbstractApplicationContexthis.metaAnnotationMap.get(annotationName);
+		Set<String> metaAnnotationTypes = this.metaAnnotationMap.get(annotationName);
 		return (metaAnnotationTypes != null ? metaAnnotationTypes : Collections.emptySet());
 	}
 

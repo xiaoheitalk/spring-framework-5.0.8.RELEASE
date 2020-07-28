@@ -174,6 +174,10 @@ public abstract class WebApplicationContextUtils {
 	}
 
 	/**
+	 * 当我们在某一个类中如果注入了ServletRequest对象，并不会直接创建一个ServletRequest然后注入进去，
+	 * 而是注入一个代理类，代理类中的方法是通过ObjectFactoryDelegatingInvocationHandler实现的，
+	 * 而这个对象中会持有一个RequestObjectFactory对象。
+	 * 基于此，我们可以通过下面这种方式直接注入request对象，并且保证线程安全
 	 * Register web-specific scopes ("request", "session", "globalSession", "application")
 	 * with the given BeanFactory, as used by the WebApplicationContext.
 	 * @param beanFactory the BeanFactory to configure
@@ -325,6 +329,7 @@ public abstract class WebApplicationContextUtils {
 
 		@Override
 		public ServletRequest getObject() {
+			// 是从当前线程中获取的
 			return currentRequestAttributes().getRequest();
 		}
 

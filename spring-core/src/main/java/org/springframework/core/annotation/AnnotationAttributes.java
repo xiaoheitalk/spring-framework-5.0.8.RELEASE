@@ -416,6 +416,7 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 
 
 	/**
+	 * 拿到指定类型注解的元数据信息
 	 * Return an {@link AnnotationAttributes} instance based on the given map.
 	 * <p>If the map is already an {@code AnnotationAttributes} instance, it
 	 * will be cast and returned immediately without creating a new instance.
