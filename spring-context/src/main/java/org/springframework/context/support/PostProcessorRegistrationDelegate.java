@@ -49,8 +49,8 @@ import org.springframework.lang.Nullable;
 final class PostProcessorRegistrationDelegate {
 
 	/**
-	 * 1. 先执行 BeanDefinitionRegistryPostProcessor 的实现类的postProcess*方法，按照手动set，PriorityOrdered，Order，不指定顺序执行
-	 * 2. 后执行BeanFactoryPostProcessor的实现类的postProcess*方法，按照手动set（在1处执行了），PriorityOrdered，Order，不指定顺序执行
+	 * 1. 先执行 BeanDefinitionRegistryPostProcessor 的实现类的postProcess*方法，按照手动set，PriorityOrdered，Ordered，不指定顺序执行
+	 * 2. 后执行BeanFactoryPostProcessor的实现类的postProcess*方法，按照手动set（在1处执行了），PriorityOrdered，Ordered，不指定顺序执行
 	 * 那为什么逻辑要先执行 postProcessBeanDefinitionRegistry 然后在执行 postProcessBeanFactory 呢？
 	 * 因为postProcessBeanDefinitionRegistry是用来创建bean定义的，而postProcessBeanFactory是修改BeanFactory,当然postProcessBeanFactory也可以修改bean定义的。
 	 * 为了保证在修改之前所有的bean定义的都存在，所以优先执行postProcessBeanDefinitionRegistry。如不是以上顺序，会出先再修改某个bean定义的报错，因为此bean定义的还没有被创建
@@ -115,6 +115,10 @@ final class PostProcessorRegistrationDelegate {
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
 			currentRegistryProcessors.clear();
 
+			/**
+			 * 为什么重新调用，因为前面的 BeanDefinitionRegistryPostProcessor#postProcessBeanDefinitionRegistry可能注入了新的实现了接口
+			 * BeanDefinitionRegistryPostProcessor的BeanDefinition
+			 */
 			// Next, invoke the BeanDefinitionRegistryPostProcessors that implement Ordered.
 			postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {

@@ -518,13 +518,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
-		// 来个锁，不然 refresh() 还没结束，你又来个启动或销毁容器的操作，那不就乱套了嘛
+		// 来个锁
 		synchronized (this.startupShutdownMonitor) {
-			// Prepare this context for refreshing. 准备工作，记录下容器的启动时间、标记“已启动”状态、处理配置文件中的占位符
+			// Prepare this context for refreshing. 准备工作：记录下容器的启动时间、标记“已启动”状态、处理配置文件中的占位符
 			prepareRefresh();
 			/**
 			 * 这步比较关键，这步完成后，配置文件就会解析成一个个 Bean 定义，注册到 BeanFactory 中，
-			 * 当然，这里说的 Bean 还没有初始化，只是配置信息都提取出来了，
 			 * 注册也只是将这些信息都保存到了注册中心(说到底核心是一个 beanName-> beanDefinition 的 map)
 			 */
 			// Tell the subclass to refresh the internal bean factory.
@@ -543,15 +542,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 				// 这里是提供给子类的扩展点，到这里的时候，所有的 Bean 都加载、注册完成了，但是都还没有初始化
 				/**
-				 * 模板方法，允许在子类中对beanFactory进行后置处理: 具体的子类可以在这步的时候添加一些特殊的 BeanFactoryPostProcessor 的实现类或做点什么事
-						* 比如一些web的ApplicationContext，就实现了自己的逻辑，做一些自己的web相关的事情
-						*/
+				 * 模板方法，允许在子类覆盖实现对beanFactory进行后置处理: 具体的子类可以在这步的时候添加一些特殊的 BeanFactoryPostProcessor 的实现类或做点什么事
+				 * 比如一些web的ApplicationContext，就实现了自己的逻辑，做一些自己的web相关的事情
+				*/
 				// Allows post-processing of the bean factory in context subclasses.
 				postProcessBeanFactory(beanFactory);
-				// 调用 BeanFactoryPostProcessor 各个实现类的 postProcessBeanFactory(factory) 方法
 				/**
-				 * 实例化并调用所有注册的beanFactory后置处理器（实现接口BeanFactoryPostProcessor的bean），在beanFactory标准初始化之后执行
-				 * 先执行BeanDefinitionRegistryPostProcessor实现类，后执行BeanFactoryPostProcessor实现类
+				 * 实例化并调用所有注册的beanFactory后置处理器（实现接口BeanFactoryPostProcessor或BeanDefinitionRegistryPostProcessor的bean）
 				 */
 				// Invoke factory processors registered as beans in the context.
 				invokeBeanFactoryPostProcessors(beanFactory);
@@ -624,7 +621,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 		/**
 		 * 这是扩展方法，由子类去实现，可以在验证之前为系统属性设置一些值可以在子类中实现此方法
-		 * 因为我们这边是AnnotationConfigApplicationContext，可以看到不管父类还是自己，都什么都没做，所以此处先忽略
 		 */
 		// Initialize any placeholder property sources in the context environment
 		initPropertySources();
@@ -686,7 +682,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		 * AbstractBeanFactory#evaluateBeanDefinitionString 调用
 		 */
 		beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
-		// 设置属性注册解析器PropertyEditor 这个主要是对bean的属性等设置管理的一个工具
+		/**
+		 * 设置属性注册解析器PropertyEditor 这个主要是对bean的属性等设置管理的一个工具：类型转换
+		 * 在AbstractBeanFactory#initBeanWrapper(org.springframework.beans.BeanWrapper)时调用
+		 */
 		beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
 		// 添加一个 BeanPostProcessor，这个 processor 比较简单： 实现了 Aware 接口的 beans 在初始化的时候，由这个 processor 负责回调，
@@ -835,7 +834,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void initMessageSource() {
 		ConfigurableListableBeanFactory beanFactory = getBeanFactory();
-		// 判断是否已经存在名为“messageSource”的Bean了
+		// 判断是否已经存在名为"messageSource"的Bean了
 		if (beanFactory.containsLocalBean(MESSAGE_SOURCE_BEAN_NAME)) {
 			// 从容器里拿出这个messageSource
 			this.messageSource = beanFactory.getBean(MESSAGE_SOURCE_BEAN_NAME, MessageSource.class);
