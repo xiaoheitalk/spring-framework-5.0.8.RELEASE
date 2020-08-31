@@ -84,7 +84,8 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 		return this.factoryBeanObjectCache.get(beanName);
 	}
 
-	/**调用postProcessObjectFromFactoryBean，确保bean初始化后调用注册的BeanPostProcessor的postProcessAfterInitialization方法
+	/**
+	 * 调用 postProcessObjectFromFactoryBean，确保bean初始化后调用注册的BeanPostProcessor的postProcessAfterInitialization方法
 	 * Obtain an object to expose from the given FactoryBean.
 	 * @param factory the FactoryBean instance
 	 * @param beanName the name of the bean
